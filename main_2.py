@@ -2,23 +2,30 @@ import random
 
 
 class Domino:
-    dominoes = [[i, j] for i in range(0, 7) for j in range(0, i + 1)]
-
     def __init__(self):
-        self.player, self.computer, self.stock, self.snake = [], [], [], []
+        self.computer, self.player, self.stock, self.snake = [], [], [], []
         self.next_move, self.status = '', ''  # next_move takes only two values ('player' or 'computer')
+        self.dominoes = [[i, j] for i in range(7) for j in range(i, 7)]
 
     def start_game(self):
-        for i in range(6, 0, -1):
-            if [i, i] in self.computer:
-                self.next_move = 'player'
-                self.snake.append(self.computer.pop(self.computer.index([i, i])))
-                return True
-            elif [i, i] in self.player:
-                self.next_move = 'computer'
+        for i in range(6, -1, -1):
+            if [i, i] in self.player:
                 self.snake.append(self.player.pop(self.player.index([i, i])))
+                self.next_move = "computer"
                 return True
-        return None
+            elif [i, i] in self.computer:
+                self.snake.append(self.computer.pop(self.computer.index([i, i])))
+                self.next_move = "player"
+                return True
+        return False
+
+    def display(self):
+        print("=" * 70, f"Stock size: {len(self.stock)}", f"Computer pieces: {len(self.computer)}", sep="\n")
+        print("\n", *self.snake, "\n", sep="") if len(self.snake) <= 6 \
+            else print("\n", *self.snake[0:3], "...", *self.snake[-3:], "\n", sep="")
+        print('Your pieces:')
+        for i in range(len(self.player)):
+            print(f"{i + 1}:{self.player[i]}")
 
     def rule_2(self):  # AI for selecting domino for computer
         dominoes = [j for i in self.snake + self.computer for j in i]
@@ -69,10 +76,9 @@ class Domino:
                 else:
                     print('Illegal move. Please try again.')
                     continue
+                break
             else:
                 print('Invalid input. Please try again.')
-                continue
-            break
 
     def computer_move(self):
         red_1 = input('\nStatus: Computer is about to make a move. Press Enter to continue...')
@@ -86,54 +92,37 @@ class Domino:
                 else:
                     self.snake.append(self.computer.pop(int(domino) - 1))
                 self.next_move = 'player'
-            else:
-                continue
-            break
+                break
 
     def game_status(self):
         if len(self.player) == 0:
-            return '\nStatus: The game is over. You won!'
+            return "Status: The game is over. You won!"
         elif len(self.computer) == 0:
-            return '\nStatus: The game is over. The computer won!'
-        elif self.snake[0][0] == self.snake[-1][1] and \
-                sum([1 for i in self.snake for j in i if self.snake[0][0] == j]) == 8:
-            return "\nStatus: The game is over. It's a draw!"
+            return "Status: The game is over. The computer won!"
+        elif self.snake[0][0] == self.snake[-1][1] and [j for i in self.snake for j in i].count(self.snake[0][0]) >= 8:
+            return "Status: The game is over. It's a draw!"
         else:
-            return 'not finished'
-
-    def display(self):
-        print('=' * 70)
-        print(f'Stock size: {len(self.stock)}')
-        print(f'Computer pieces: {len(self.computer)}\n')
-        if len(self.snake) <= 6:
-            for i in range(len(self.snake)):
-                print(self.snake[i], end='')
-        else:
-            print(f'{self.snake[0]}{self.snake[1]}{self.snake[2]}...{self.snake[-3]}{self.snake[-2]}{self.snake[-1]}')
-        print('\n\nYour pieces:')
-        for i in range(len(self.player)):
-            print(f'{i + 1}:{self.player[i]}')
+            return "not finished"
 
     def play(self):
         while True:
-            random.shuffle(Domino.dominoes)
-            self.player = Domino.dominoes[0:7]
-            self.computer = Domino.dominoes[7:14]
-            self.stock = Domino.dominoes[14:]
-            if not self.start_game():
-                continue
+
+            random.shuffle(self.dominoes)
+            self.computer = self.dominoes[:7]
+            self.player = self.dominoes[7:14]
+            self.stock = self.dominoes[14:]
+            if self.start_game():
+                break
+        while self.status == 'not finished' or self.status == '':
+            self.display()
+            if self.next_move == 'player':
+                self.player_move()
             else:
-                while self.status == 'not finished' or self.status == '':
-                    self.display()
-                    if self.next_move == 'player':
-                        self.player_move()
-                    else:
-                        self.computer_move()
-                    self.status = self.game_status()
-                self.display()
-                print(self.status)
-            break
+                self.computer_move()
+            self.status = self.game_status()
+        self.display()
+        print(self.status)
 
 
-domino_game = Domino()
-domino_game.play()
+game = Domino()
+game.play()
