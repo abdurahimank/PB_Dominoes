@@ -1,4 +1,4 @@
-# Stage 1/5: Setting Up the Game
+# Stage 2/5: The Interface
 import random
 
 
@@ -24,8 +24,14 @@ while True:
     if domino and status:
         break
 
-print(f"Stock pieces:  {stock_pieces}")
-print(f"Computer pieces: {computer_pieces}")
-print(f"Player pieces: {player_pieces}")
-print(f"Domino snake: {domino}")
-print(f"Status: {status}")
+print("=" * 70)
+print(f"Stock size: {len(stock_pieces)}")
+print(f"Computer pieces: {len(computer_pieces)}")
+print(f"\n{domino[0]}\n")
+print("Your pieces:")
+for i in range(len(player_pieces)):
+    print(f"{i + 1}:{player_pieces[i]}")
+if status == "computer":
+    print("\nStatus: Computer is about to make a move. Press Enter to continue...")
+else:
+    print("\nStatus: It's your turn to make a move. Enter your command.")
