@@ -1,4 +1,4 @@
-# Stage 3/5: Taking Turns
+# Stage 4/5: Enforcing Rules
 import random
 
 
@@ -32,6 +32,31 @@ def display():
         print("\nStatus: It's your turn to make a move. Enter your command.")
 
 
+def check_legal_move(domino, index):
+    if int(index) == 0:
+        return True
+    elif int(index) < 0:
+        if snake[0][0] in domino:
+            return True
+    elif int(index) > 0:
+        if snake[-1][1] in domino:
+            return True
+    return False
+
+
+def make_legal_move(domino, index):
+    if index < 0:
+        if domino[1] == snake[0][0]:
+            snake.insert(0, domino)
+        else:
+            snake.insert(0, [domino[1], domino[0]])
+    else:
+        if domino[0] == snake[-1][1]:
+            snake.append(domino)
+        else:
+            snake.append([domino[1], domino[0]])
+
+
 def player_move():
     global status
     status = "computer"
@@ -39,15 +64,19 @@ def player_move():
         domino_no = input()
         if domino_no.isdigit() and int(domino_no) <= len(player_pieces) \
                 or len(domino_no) == 2 and domino_no[1].isdigit() and len(domino_no[1]) <= len(player_pieces):
-            break
+            if check_legal_move(player_pieces[abs(int(domino_no)) - 1], domino_no):
+                break
+            else:
+                print("Illegal move. Please try again.")
+                continue
         else:
             print("Invalid input. Please try again.")
     if domino_no == "0" and len(stock_pieces) > 0:
         player_pieces.append(stock_pieces.pop())
     elif len(domino_no) == 2:
-        snake.insert(0, player_pieces.pop(int(domino_no[1]) - 1))
+        make_legal_move(player_pieces.pop(int(domino_no[1]) - 1), -1)
     elif int(domino_no) > 0:
-        snake.append(player_pieces.pop(int(domino_no) - 1))
+        make_legal_move(player_pieces.pop(int(domino_no) - 1), 1)
 
 
 def computer_move():
@@ -55,13 +84,16 @@ def computer_move():
     status = "player"
     input()
     k = len(computer_pieces)
-    domino_no = random.choice([i for i in range(-k, k + 1)])
+    while True:
+        domino_no = random.choice([i for i in range(-k, k + 1)])
+        if check_legal_move(computer_pieces[abs(domino_no) - 1], domino_no):
+            break
     if domino_no == 0 and len(stock_pieces) > 0:
         computer_pieces.append(stock_pieces.pop())
     elif domino_no < 0:
-        snake.insert(0, computer_pieces.pop(abs(domino_no) - 1))
-    else:
-        snake.append(computer_pieces.pop(domino_no - 1))
+        make_legal_move(computer_pieces.pop(abs(domino_no) - 1), -1)
+    elif domino_no > 0:
+        make_legal_move(computer_pieces.pop(domino_no - 1), 1)
 
 
 dominoes = [[i, j] for i in range(7) for j in range(i, 7)]
