@@ -1,4 +1,4 @@
-# Stage 4/5: Enforcing Rules
+# Stage 5/5: The AI
 import random
 
 
@@ -79,21 +79,30 @@ def player_move():
         make_legal_move(player_pieces.pop(int(domino_no) - 1), 1)
 
 
+def computer_domino_score():
+    nums = [i for j in snake for i in j] + [i for j in computer_pieces for i in j]
+    score_dict = {}
+    for i in computer_pieces:
+        score_dict[tuple(i)] = nums.count(i[0]) + nums.count(i[1])
+    dict_sorted = sorted(score_dict.items(), key=lambda x: x[1], reverse=True)
+    return [list(i[0]) for i in dict_sorted]
+
+
 def computer_move():
     global status
     status = "player"
     input()
-    k = len(computer_pieces)
-    while True:
-        domino_no = random.choice([i for i in range(-k, k + 1)])
-        if check_legal_move(computer_pieces[abs(domino_no) - 1], domino_no):
+    score_list = computer_domino_score()
+    for i in score_list:
+        if check_legal_move(i, -1):
+            make_legal_move(computer_pieces.pop(computer_pieces.index(i)), -1)
             break
-    if domino_no == 0 and len(stock_pieces) > 0:
-        computer_pieces.append(stock_pieces.pop())
-    elif domino_no < 0:
-        make_legal_move(computer_pieces.pop(abs(domino_no) - 1), -1)
-    elif domino_no > 0:
-        make_legal_move(computer_pieces.pop(domino_no - 1), 1)
+        elif check_legal_move(i, 1):
+            make_legal_move(computer_pieces.pop(computer_pieces.index(i)), 1)
+            break
+    else:
+        if len(stock_pieces) > 0:
+            computer_pieces.append(stock_pieces.pop())
 
 
 dominoes = [[i, j] for i in range(7) for j in range(i, 7)]
