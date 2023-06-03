@@ -1,3 +1,5 @@
+# Project: Dominoes
+# Stage 5/5: The AI
 import random
 
 
@@ -71,9 +73,12 @@ class Dominoes:
 
     def computer_move(self):
         dominoes = self.computer_domino_score()
+        # print(self.computer, dominoes)  # test
         for i in dominoes:
             domino_pos = self.computer.index(i) + 1
+            # print("test 1: ", self.computer)  # test
             if self.legal_move(self.computer, -1 * domino_pos):
+                # print("test 2: ", self.computer)  # test
                 self.snake.insert(0, self.computer.pop(domino_pos - 1))
                 break
             elif self.legal_move(self.computer, domino_pos):

@@ -1,3 +1,5 @@
+# Project: Dominoes
+# Stage 4/5: Enforcing Rules
 import random
 
 
@@ -38,12 +40,12 @@ class Dominoes:
 
     def game_status(self):
         if len(self.computer) == 0:
-            self.status = "Status: The game is over. The computer won!"
+            self.status = "computer"
         elif len(self.player) == 0:
-            self.status = "Status: The game is over. You won!"
+            self.status = "player"
         elif self.snake[0][0] == self.snake[-1][1]:
             if [i for j in self.snake for i in j].count(self.snake[0][0]) == 8:
-                self.status = "Status: The game is over. It's a draw!"
+                self.status = "draw"
         return self.status
 
     def legal_move(self, player, domino_pos):
@@ -59,29 +61,18 @@ class Dominoes:
             return True
         return False
 
-    def computer_domino_score(self):
-        dominoes = [j for i in self.snake + self.computer for j in i]
-        score_dict = {}
-        for i in self.computer:
-            score_dict[tuple(i)] = dominoes.count(i[0]) + dominoes.count(i[1]) if i[0] != i[1] else dominoes.count(i[0])
-        dominoes_list = []
-        for i in sorted(score_dict.items(), key=lambda x: x[1], reverse=True):
-            dominoes_list.append(list(i[0]))
-        return dominoes_list
-
     def computer_move(self):
-        dominoes = self.computer_domino_score()
-        for i in dominoes:
-            domino_pos = self.computer.index(i) + 1
-            if self.legal_move(self.computer, -1 * domino_pos):
-                self.snake.insert(0, self.computer.pop(domino_pos - 1))
+        while True:
+            domino_pos = random.choice([i for i in range(-len(self.computer), len(self.computer) + 1)])
+            if self.legal_move(self.computer, domino_pos):
                 break
-            elif self.legal_move(self.computer, domino_pos):
-                self.snake.append(self.computer.pop(domino_pos - 1))
-                break
-        else:
+        if domino_pos == 0:
             if len(self.stock) > 0:
                 self.computer.append(self.stock.pop(0))
+        elif domino_pos < 0:
+            self.snake.insert(0, self.computer.pop(abs(domino_pos) - 1))
+        else:
+            self.snake.append(self.computer.pop(domino_pos - 1))
 
     def player_move(self):
         while True:
@@ -116,7 +107,12 @@ class Dominoes:
                 self.next_player = "computer"
             self.game_status()
         self.display()
-        print(self.status)
+        if self.status == "draw":
+            print("Status: The game is over. It's a draw!")
+        elif self.status == "player":
+            print("Status: The game is over. You won!")
+        else:
+            print("Status: The game is over. The computer won!")
 
 
 game_1 = Dominoes()
